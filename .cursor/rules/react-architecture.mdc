@@ -1,0 +1,49 @@
+---
+description: React architecture, performance, monorepo boundaries, styling, and testing standards.
+globs: "src/**/*.{ts,tsx}"
+alwaysApply: true
+---
+
+## React Handlers & Props Cleanliness
+
+- **Direct Callback Assignment:** If an inline event handler simply invokes a function without passing parameters, pass the reference directly.
+  - ❌ Bad: `onClick={() => { handleSave() }}` or `onClick={() => handleSave()}`
+  - ✅ Good: `onClick={handleSave}`
+- **No IIFEs:** Avoid auto-executing functions (IIFEs) inside component templates or hooks unless strictly required by a third-party lifecycle constraint.
+- **Component Length & Maintainability:** Keep component files concise and readable. If a component exceeds ~250 lines or manages distinct UI concerns, extract sub-components or helpers into dedicated files.
+
+## Atomic Components & Stores
+
+- Atomic/presentational components (`src/components/ui/*`, small widgets like `TurnstileWidget`) must **not** call Zustand hooks.
+- Routes, shells, and feature containers read the store and pass values down as props.
+- Type-only imports from store modules (`import type { Theme }`) are fine.
+
+## Performance & Re-renders
+
+- **Target Minimal Re-renders:** Structure state to minimize render cycles.
+- **No Premature Memoization:** Do **not** wrap handlers or values in `useCallback` or `useMemo` by default. Only use them when:
+  1. Passing callbacks to components wrapped in `React.memo`.
+  2. The function/value is a dependency of `useEffect` or custom hooks.
+  3. The calculation involves demonstrably expensive operations (e.g., heavy array transformations).
+
+## Monorepo & Environment Configuration
+
+- **Zero Direct `process.env` / `import.meta.env`:** Never access environment variables directly inside components, hooks, or feature files.
+  - All environment variables must be validated, parsed, and exposed via a centralized config module (e.g., `@/config/env` or `@/lib/env`).
+  - Import variables exclusively from that central config instance.
+- **Monorepo Boundaries:** Respect package boundaries. Import shared code using defined workspace packages/aliases rather than reaching across folder roots into sibling projects via deep relative paths.
+
+## Styling & Design Tokens
+
+- **No Hardcoded Hex Values:** Never write raw color hex codes (e.g., `#FF5733` or `#1E293B`) directly inside component files or inline styles.
+- **Tailwind / Theme First:** Use semantic Tailwind classes or reference tokens defined in your Tailwind config (`tailwind.config.js`).
+- **Dynamic Values:** If an arbitrary or computed color value is strictly required, resolve it via your design token utility or CSS custom properties.
+
+## Meaningful Unit Testing
+
+- **High Value, No Fluff:** Every unit test must test real behavior, business logic boundaries, or user outcomes—never test implementation details or default library React code.
+- **No Duplicate Test Scenarios:** Avoid redundant assertions that repeat basic rendering checks across multiple test files.
+- **Never Skip Edge Cases:** Always test boundary conditions:
+  - Empty/null/undefined states.
+  - Async network errors and loading fallbacks.
+  - Unexpected input types or boundary values.

@@ -1,0 +1,56 @@
+---
+description: Global coding standards for TypeScript, React, imports, and API deprecations.
+globs: "src/**/*.{ts,tsx}"
+alwaysApply: true
+---
+
+## Async: await, named helpers, no void
+
+- Do **not** write `void someAsyncCall()` (or `void (async () => ...)()`) to discard a Promise.
+- Do **not** use `.then()` / `.catch()` for control flow — use `async`/`await` + `try`/`catch`.
+- Do **not** put `async` on event handler props (`onClick={async () => …}`). Define a named async function and call it from a sync handler.
+- Treat caught errors in `catch(err)` as `unknown` and validate them before reading properties.
+
+## React & State
+
+- Use arrow functions for components and internal helpers (`const Component = () => ...`).
+- Group closely related fields into a single state object instead of managing multiple atomic states (e.g., form inputs).
+- Use boolean coercion for short-circuit rendering: `{Boolean(condition) && <Component />}` or `{!!condition && <Component />}` to avoid rendering truthy/falsy `0` primitives.
+- Functions that do not directly mutate or access component state should be declared outside the component for easier unit testing.
+
+## Imports
+
+### Absolute paths
+
+- Use `@/` for any import that leaves the current folder (`@/lib/...`, `@/store/...`, `@/features/...`).
+- Do **not** use deep relatives like `../../../lib/foo`.
+- Same-folder imports may stay relative (`./VehicleGarageFields`).
+
+### Order (blank line between groups)
+
+1. External packages (`react`, `react-router`, `zustand`, …)
+2. Absolute `@/` imports
+3. Relative `./` (or rare `../` same-feature) imports
+
+### Types & Aliases
+
+- Prefer `import type` for type-only imports (`verbatimModuleSyntax`).
+- Do **not** mix `@/` and deep `../` for the same module category in one file.
+- The alias `@` points strictly to `src/`. Do not introduce secondary aliases.
+
+## No Deprecated APIs
+
+Do not introduce or keep deprecated library surfaces when a modern replacement exists.
+
+### React
+
+- Do **not** use deprecated `FormEvent` / `FormEventHandler` — they have no DOM counterpart.
+- For form `onSubmit`, use `SubmitEvent` / `SubmitEventHandler`.
+- Prefer the matching event type for the handler (`ChangeEvent`, `InputEvent`, or `SyntheticEvent`) instead of `FormEvent`.
+
+### Google Maps
+
+- Do **not** use `PinElement.element` — pass the `PinElement` instance directly as `content` (it is an `HTMLElement`).
+- Do **not** use deprecated `PinElement.glyph` — use `glyphText` (string) or `glyphSrc` (image URL).
+- Do **not** use legacy `google.maps.Marker` — use `google.maps.marker.AdvancedMarkerElement`.
+- Prefer current, documented options over anything marked deprecated in the Google Maps JS reference.
