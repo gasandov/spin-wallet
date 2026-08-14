@@ -1,5 +1,7 @@
 "use client"
 
+import { faRightToBracket } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState, type SyntheticEvent } from "react"
 import { useForm } from "react-hook-form"
@@ -66,6 +68,7 @@ export const LoginForm = ({ onLogin, signIn = mockLogin }: LoginFormProps) => {
         </p>
       )}
       <Button type="submit" disabled={isSubmitting}>
+        <FontAwesomeIcon icon={faRightToBracket} className="fa-fw h-4 w-4" />
         {isSubmitting ? "Signing in..." : "Sign in"}
       </Button>
     </form>

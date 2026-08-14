@@ -1,10 +1,12 @@
 "use client"
 
+import { faReceipt } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import { use } from "react"
 
 import { ScreenShell } from "@/components/screen-shell"
+import { BackLink } from "@/components/ui/back-link"
 import { formatCurrency, formatTimestamp, getMovement } from "@/domain/wallet"
 
 type ReceiptPageProps = {
@@ -33,10 +35,8 @@ const ReceiptPage = ({ params }: ReceiptPageProps) => {
     return (
       <ScreenShell>
         <div className="flex flex-col gap-4">
-          <Link href="/transactions" className="text-sm text-primary">
-            Back
-          </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <BackLink href="/" />
+          <h1 className="text-2xl font-semibold tracking-tight text-accent">
             Transaction not found
           </h1>
         </div>
@@ -46,11 +46,12 @@ const ReceiptPage = ({ params }: ReceiptPageProps) => {
 
   return (
     <ScreenShell>
-      <div className="flex flex-1 flex-col justify-center gap-6">
-        <Link href="/transactions" className="text-sm text-primary">
-          Back
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Receipt</h1>
+      <BackLink href="/" />
+      <div className="flex flex-col mt-2 gap-6">
+        <h1 className="inline-flex items-center gap-2 text-2xl font-semibold tracking-tight text-accent">
+          <FontAwesomeIcon icon={faReceipt} className="fa-fw h-6 w-6" />
+          Receipt
+        </h1>
         <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 text-sm">
           <p>
             <span className="text-muted">Receipt ID</span>
@@ -77,12 +78,6 @@ const ReceiptPage = ({ params }: ReceiptPageProps) => {
             </span>
           </p>
         </div>
-        <Link
-          href="/"
-          className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground"
-        >
-          Back to home
-        </Link>
       </div>
     </ScreenShell>
   )

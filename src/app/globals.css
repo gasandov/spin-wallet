@@ -3,8 +3,10 @@
 :root {
   --background: #f4f6f8;
   --foreground: #0f172a;
-  --primary: #0f766e;
-  --primary-foreground: #f8fafc;
+  --primary: #531bc8;
+  --primary-foreground: #ffffff;
+  --accent: #ff6600;
+  --accent-foreground: #ffffff;
   --muted: #64748b;
   --card: #ffffff;
   --danger: #dc2626;
@@ -17,6 +19,8 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-danger: var(--danger);
@@ -30,8 +34,10 @@
   :root {
     --background: #0b1210;
     --foreground: #e2e8f0;
-    --primary: #2dd4bf;
-    --primary-foreground: #042f2e;
+    --primary: #7c3aed;
+    --primary-foreground: #ffffff;
+    --accent: #ff6600;
+    --accent-foreground: #ffffff;
     --muted: #94a3b8;
     --card: #111827;
     --danger: #f87171;

@@ -462,9 +462,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fortawesome/fontawesome-common-types@npm:7.3.1":
+  version: 7.3.1
+  resolution: "@fortawesome/fontawesome-common-types@npm:7.3.1"
+  checksum: 10c0/f443a0109773e57ceab3c35021c4f26baf8c29afc79efbea2324bcd9f7dd326f5ac415e46ead17eaf6e935bc23fce83993d4211a4cff375c19100ee65ea9e5cc
+  languageName: node
+  linkType: hard
+
+"@fortawesome/fontawesome-svg-core@npm:^7.3.1":
+  version: 7.3.1
+  resolution: "@fortawesome/fontawesome-svg-core@npm:7.3.1"
+  dependencies:
+    "@fortawesome/fontawesome-common-types": "npm:7.3.1"
+  checksum: 10c0/07c84a5751999d13d875f63e059ec2b0ab6dbed9cfe363fe8a870fd64e045c049367ae55bdee18973b38255967593d6eef403170a1e70cf4400de8216a932654
+  languageName: node
+  linkType: hard
+
+"@fortawesome/free-solid-svg-icons@npm:^7.3.1":
+  version: 7.3.1
+  resolution: "@fortawesome/free-solid-svg-icons@npm:7.3.1"
+  dependencies:
+    "@fortawesome/fontawesome-common-types": "npm:7.3.1"
+  checksum: 10c0/b00958ce2929419adc2371739f7552728218f0c502dab74dafb6070e6a6c51a811a8b66ab18ca555703ad71d2769a99c64742baca29b244d8a209d11ad25d8fc
+  languageName: node
+  linkType: hard
+
+"@fortawesome/react-fontawesome@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "@fortawesome/react-fontawesome@npm:3.5.0"
+  peerDependencies:
+    "@fortawesome/fontawesome-svg-core": ~6 || ~7
+    react: ^18.0.0 || ^19.0.0
+  checksum: 10c0/b1b854095f9cbd52fe18f02461e594452fc70e3977ceab5fd1c9206ac98f89e40500e7fb5625426fa0cc2dc7e65d3d86bd07b70171d58dc5d54b0c74878d3b44
+  languageName: node
+  linkType: hard
+
 "@hookform/resolvers@npm:^5.7.1":
-  version: 5.7.1
-  resolution: "@hookform/resolvers@npm:5.7.1"
+  version: 5.8.0
+  resolution: "@hookform/resolvers@npm:5.8.0"
   dependencies:
     "@standard-schema/utils": "npm:^0.3.0"
   peerDependencies:
@@ -490,7 +525,7 @@ __metadata:
     superstruct: ">=0.12.0"
     typanion: ^3.3.2
     valibot: ">=0.31.0 || ^1.0.0-beta.4 || ^1.0.0-rc"
-    vest: ">=3.0.0"
+    vest: ">=6.0.0"
     yup: ^1.0.0
     zod: ^3.25.0 || ^4.0.0
   peerDependenciesMeta:
@@ -542,7 +577,7 @@ __metadata:
       optional: true
     zod:
       optional: true
-  checksum: 10c0/a1e9608ca62488ad80883e421e2cf973e87668864993f490af6ea286c270530f04584a4f1b88159eee2a8207a52c92efeca363ddd6ea86b029d902a135101cdb
+  checksum: 10c0/5beb3e028bfb0e30e26918c11bcb6226f64294a4e11563868b24fee3e5d5ff6641d93d4ff905d28732d7e4fcc69df9004115fba411d452c6eae388a807c3fafe
   languageName: node
   linkType: hard
 
@@ -2394,9 +2429,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.402":
-  version: 1.5.405
-  resolution: "electron-to-chromium@npm:1.5.405"
-  checksum: 10c0/6e85abde0e3c77945c3cdd6f28741cba268474a62bfbe8c59c5728438a03e689d1df74fd4526a73064f452350ef7fd0b8edb721fa979a791813b81ec2b1a0d8c
+  version: 1.5.406
+  resolution: "electron-to-chromium@npm:1.5.406"
+  checksum: 10c0/d16409d1c6bbc7d7ef8b4ce0680b7f22e02d153bb0f3be3a86d3c22c222056bb41a0b23cbf9e53a93e916b8f90581f886b63129b34b85e2cd3180963114a9652
   languageName: node
   linkType: hard
 
@@ -5059,6 +5094,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "spin-wallet@workspace:."
   dependencies:
+    "@fortawesome/fontawesome-svg-core": "npm:^7.3.1"
+    "@fortawesome/free-solid-svg-icons": "npm:^7.3.1"
+    "@fortawesome/react-fontawesome": "npm:^3.5.0"
     "@hookform/resolvers": "npm:^5.7.1"
     "@tailwindcss/postcss": "npm:^4"
     "@tanstack/react-query": "npm:^5.101.4"

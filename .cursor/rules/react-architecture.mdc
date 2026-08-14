@@ -14,7 +14,7 @@ alwaysApply: true
 
 ## Atomic Components & Stores
 
-- Atomic/presentational components (`src/components/ui/*`, small widgets like `TurnstileWidget`) must **not** call Zustand hooks.
+- Atomic/presentational components (`src/components/ui/*`) must **not** call Zustand hooks.
 - Routes, shells, and feature containers read the store and pass values down as props.
 - Type-only imports from store modules (`import type { Theme }`) are fine.
 
@@ -25,13 +25,6 @@ alwaysApply: true
   1. Passing callbacks to components wrapped in `React.memo`.
   2. The function/value is a dependency of `useEffect` or custom hooks.
   3. The calculation involves demonstrably expensive operations (e.g., heavy array transformations).
-
-## Monorepo & Environment Configuration
-
-- **Zero Direct `process.env` / `import.meta.env`:** Never access environment variables directly inside components, hooks, or feature files.
-  - All environment variables must be validated, parsed, and exposed via a centralized config module (e.g., `@/config/env` or `@/lib/env`).
-  - Import variables exclusively from that central config instance.
-- **Monorepo Boundaries:** Respect package boundaries. Import shared code using defined workspace packages/aliases rather than reaching across folder roots into sibling projects via deep relative paths.
 
 ## Styling & Design Tokens
 

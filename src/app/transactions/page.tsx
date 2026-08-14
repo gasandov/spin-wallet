@@ -1,10 +1,10 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 
 import { MovementList } from "@/components/movement-list"
 import { ScreenShell } from "@/components/screen-shell"
+import { BackLink } from "@/components/ui/back-link"
 import { Button } from "@/components/ui/button"
 import { getWallet, WALLET_QUERY_KEY } from "@/domain/wallet"
 
@@ -26,10 +26,8 @@ const TransactionsPage = () => {
     <ScreenShell>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <Link href="/" className="text-sm text-primary">
-            Back
-          </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <BackLink href="/" />
+          <h1 className="text-2xl font-semibold tracking-tight text-accent">
             All transactions
           </h1>
         </div>

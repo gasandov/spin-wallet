@@ -1,3 +1,4 @@
+import { config } from "@fortawesome/fontawesome-svg-core"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Suspense, type ReactNode } from "react"
@@ -5,7 +6,10 @@ import { Suspense, type ReactNode } from "react"
 import { AuthGate } from "@/components/auth-gate"
 import { Providers } from "@/components/providers"
 
+import "@fortawesome/fontawesome-svg-core/styles.css"
 import "./globals.css"
+
+config.autoAddCss = false
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
