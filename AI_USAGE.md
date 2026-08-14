@@ -45,5 +45,3 @@ Fase 1 (`create-next-app`, deps, Prettier, reglas de Cursor) ya estaba en el rep
 - El **backlog post-v1**: sign out, página de todos los movimientos, recibo por id, autocomplete, validar hijack, error al fetch del wallet, credenciales fijas para reproducir auth error.
 - El **branding**: naranja en CTAs, morado en el card de saldo, Font Awesome, recibo centrado y back a home (no al listado).
 - UI en **español por defecto**, con switcher a inglés en cada pantalla.
-
-La IA propuso el detalle de carpetas, el wallet en memoria del cliente, `skipHydration` en Zustand y no mutar saldo en el API. Yo lo dejé pasar porque encaja con un mock de un par de días; no es una decisión que yo hubiera escrito antes de ver el plan.
