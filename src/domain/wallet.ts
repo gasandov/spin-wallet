@@ -12,7 +12,6 @@ const snapshot = (): Wallet => ({
   movements: MOCK_MOVEMENTS.map((movement) => ({ ...movement })),
 })
 
-// ponytail: in-memory wallet. Ceiling: lost on refresh. Upgrade: persist or a real backend.
 let state: Wallet = snapshot()
 
 export const resetWallet = (): void => {

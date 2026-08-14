@@ -1,8 +1,16 @@
 "use client"
 
+import {
+  faArrowRight,
+  faPaperPlane,
+  faPen,
+  faStar,
+  faUser,
+  faUserPlus,
+} from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, type ChangeEvent, type SyntheticEvent } from "react"
 import { useForm, useWatch } from "react-hook-form"
@@ -22,6 +30,7 @@ import {
 import { postTransaction, WalletApiError } from "@/lib/api"
 
 import { ScreenShell } from "./screen-shell"
+import { BackLink } from "./ui/back-link"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 
@@ -136,7 +145,7 @@ export const TransactionFlow = () => {
     return (
       <ScreenShell>
         <div className="flex flex-col gap-6">
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight text-accent">
             Confirm transaction
           </h1>
           <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
@@ -153,20 +162,24 @@ export const TransactionFlow = () => {
                 : "Unexpected error."}
             </p>
           )}
-          <Button onClick={send} disabled={mutation.isPending}>
-            {mutation.isPending
-              ? "Sending..."
-              : mutation.isError
-                ? "Retry"
-                : "Send"}
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={handleBackToEdit}
-            disabled={mutation.isPending}
-          >
-            Edit
-          </Button>
+          <div className="flex flex-col md:flex-row-reverse gap-2">
+            <Button onClick={send} disabled={mutation.isPending}>
+              <FontAwesomeIcon icon={faPaperPlane} className="fa-fw h-4 w-4" />
+              {mutation.isPending
+                ? "Sending..."
+                : mutation.isError
+                  ? "Retry"
+                  : "Send"}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleBackToEdit}
+              disabled={mutation.isPending}
+            >
+              <FontAwesomeIcon icon={faPen} className="fa-fw h-4 w-4" />
+              Edit
+            </Button>
+          </div>
         </div>
       </ScreenShell>
     )
@@ -176,10 +189,8 @@ export const TransactionFlow = () => {
     <ScreenShell>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <Link href="/" className="text-sm text-primary">
-            Back
-          </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <BackLink href="/" />
+          <h1 className="text-2xl font-semibold tracking-tight text-accent">
             New transaction
           </h1>
           <p className="text-sm text-muted">
@@ -201,20 +212,29 @@ export const TransactionFlow = () => {
             onChange={handleAmountChange}
           />
           <fieldset className="flex flex-col gap-2">
-            <legend className="text-sm font-medium">Favorites</legend>
+            <legend className="inline-flex items-center gap-2 text-sm font-medium">
+              <FontAwesomeIcon icon={faStar} className="fa-fw h-4 w-4" />
+              Favorites
+            </legend>
             <div className="flex flex-col gap-2">
               {MOCK_FAVORITES.map((contact) => (
                 <button
                   key={contact.id}
                   type="button"
                   onClick={() => selectFavorite(contact.id)}
-                  className={`rounded-xl border px-4 py-3 text-left ${selectedId === contact.id ? "border-primary bg-card" : "border-border bg-card"}`}
+                  className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left ${selectedId === contact.id ? "border-accent bg-card" : "border-border bg-card"}`}
                 >
-                  <span className="block text-sm font-medium">
-                    {contact.name}
-                  </span>
-                  <span className="block text-xs text-muted">
-                    {contact.identifier}
+                  <FontAwesomeIcon
+                    icon={faUser}
+                    className="fa-fw h-4 w-4 text-muted"
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium">
+                      {contact.name}
+                    </span>
+                    <span className="block text-xs text-muted">
+                      {contact.identifier}
+                    </span>
                   </span>
                 </button>
               ))}
@@ -227,14 +247,22 @@ export const TransactionFlow = () => {
           </fieldset>
           <Input
             id="newContact"
-            label="New contact"
+            label={
+              <>
+                <FontAwesomeIcon icon={faUserPlus} className="fa-fw h-4 w-4" />
+                New contact
+              </>
+            }
             placeholder="Phone or email"
             autoComplete="username"
             error={errors.newContact?.message}
             {...newContactField}
             onChange={handleNewContactChange}
           />
-          <Button type="submit">Continue</Button>
+          <Button type="submit">
+            <FontAwesomeIcon icon={faArrowRight} className="fa-fw h-4 w-4" />
+            Continue
+          </Button>
         </form>
       </div>
     </ScreenShell>

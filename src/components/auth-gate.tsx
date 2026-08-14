@@ -11,8 +11,6 @@ type AuthGateProps = {
 
 const PUBLIC_PATHS = new Set(["/login"])
 
-// ponytail: session lives in localStorage. Ceiling: gated UI waits on rehydrate.
-// Upgrade: httpOnly cookie + proxy.ts so the server can redirect.
 export const AuthGate = ({ children }: AuthGateProps) => {
   const router = useRouter()
   const pathname = usePathname()

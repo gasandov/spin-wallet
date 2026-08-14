@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Spin Wallet
 
-## Getting Started
+Simulación de una wallet de alto volumen: login mock, saldo, envío a contactos y recibos. No mueve dinero real.
 
-First, run the development server:
+La UI está en inglés. Decisiones de diseño: [DECISIONS.md](DECISIONS.md). Uso de IA: [AI_USAGE.md](AI_USAGE.md).
+
+## Requisitos
+
+- Node 24 (ver `.nvmrc`)
+- Yarn (el repo versiona `.yarnrc.yml` y `yarn.lock`)
+
+## Cómo ejecutar
 
 ```bash
-npm run dev
-# or
+yarn install
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Otros scripts:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+yarn test                 # Vitest
+yarn lint
+yarn build && yarn start  # producción local
+```
 
-## Learn More
+## Demo
 
-To learn more about Next.js, take a look at the following resources:
+Cualquier email o teléfono con formato válido inicia sesión.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Para forzar un error de auth usa `fail@spin.app` o `0000000000`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+El envío de dinero pasa por una ruleta en `/api/transactions`: ~50% éxito, el resto timeout (~10s), error de red, fondos insuficientes o error genérico. Cargar el wallet falla ~20% de las veces (hay Retry).
 
-## Deploy on Vercel
+## Librerías
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Librería | Para qué |
+| --- | --- |
+| **Next.js 16** (App Router) + **React 19** + **TypeScript** | App, rutas y route handler |
+| **Zustand** | Sesión persistida en `localStorage` |
+| **TanStack Query** | Fetch del wallet y mutación de transacción (loading / error / retry) |
+| **React Hook Form** + **Zod** | Validación de login y de captura de transacción |
+| **Tailwind CSS 4** | Estilos; tokens en `src/app/globals.css` |
+| **Font Awesome** | Iconos |
+| **Vitest** + **Testing Library** | Tests de dominio y del formulario de login |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Limitaciones conocidas
+
+- Auth mock. `AuthGate` corre en el cliente y guarda la sesión en `localStorage`; no hay cookie httpOnly ni redirect en el servidor.
+- El wallet vive en memoria del módulo cliente (`src/domain/wallet.ts`). Se pierde al recargar. El API no muta el saldo: el cliente registra el movimiento después de un 200.
+- Home es CSR, no RSC: TanStack Query y la sesión lo impiden.
+- Contactos nuevos no se persisten como favoritos.
+- No hay backend real ni tests E2E.

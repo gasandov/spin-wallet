@@ -1,7 +1,7 @@
-import type { InputHTMLAttributes } from "react"
+import type { InputHTMLAttributes, ReactNode } from "react"
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  label: string
+  label: ReactNode
   error?: string
 }
 
@@ -13,13 +13,16 @@ export const Input = ({
   ...props
 }: InputProps) => (
   <div className="flex flex-col gap-1.5">
-    <label htmlFor={id} className="text-sm font-medium text-foreground">
+    <label
+      htmlFor={id}
+      className="inline-flex items-center gap-2 text-sm font-medium text-foreground"
+    >
       {label}
     </label>
     <input
       id={id}
       aria-invalid={Boolean(error)}
-      className={`h-11 rounded-xl border bg-card px-3 text-sm outline-none ring-primary focus:ring-2 ${error ? "border-danger" : "border-border"} ${className}`}
+      className={`h-11 rounded-xl border bg-card px-3 text-sm outline-none ring-accent focus:ring-2 ${error ? "border-danger" : "border-border"} ${className}`}
       {...props}
     />
     {Boolean(error) && (
