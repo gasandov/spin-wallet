@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, type ReactNode } from "react"
 
+import { getSession } from "@/lib/api"
 import { useSessionStore } from "@/store/session"
 
 type AuthGateProps = {
@@ -18,11 +19,19 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   const hasHydrated = useSessionStore((state) => state.hasHydrated)
 
   useEffect(() => {
-    const rehydrate = async () => {
-      await useSessionStore.persist.rehydrate()
-      useSessionStore.getState().setHasHydrated(true)
+    const loadSession = async () => {
+      try {
+        const session = await getSession()
+        useSessionStore
+          .getState()
+          .login(session.identifier, session.displayName)
+      } catch {
+        useSessionStore.getState().logout()
+      } finally {
+        useSessionStore.getState().setHasHydrated(true)
+      }
     }
-    rehydrate()
+    loadSession()
   }, [])
 
   useEffect(() => {

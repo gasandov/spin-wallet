@@ -13,11 +13,10 @@ import { useRouter } from "next/navigation"
 
 import {
   formatCurrency,
-  getWallet,
   RECENT_MOVEMENT_COUNT,
-  resetWallet,
   WALLET_QUERY_KEY,
 } from "@/domain/wallet"
+import { getWallet, postLogout } from "@/lib/api"
 import { useSessionStore } from "@/store/session"
 
 import { MovementList } from "./movement-list"
@@ -46,11 +45,19 @@ export const HomeDashboard = () => {
     retry()
   }
 
-  const signOut = () => {
+  const signOutUser = async () => {
+    try {
+      await postLogout()
+    } catch {
+      // cookie may already be gone; still clear local UI state
+    }
     logout()
-    resetWallet()
     queryClient.clear()
     router.replace("/login")
+  }
+
+  const signOut = () => {
+    signOutUser()
   }
 
   const recent =

@@ -33,5 +33,9 @@ export type ApiError = {
   message: string
 }
 
-export type TransactionOutcome =
-  "timeout" | "network" | "insufficient" | "unknown" | "success"
+export type TransactionOutcome = "timeout" | "network" | "unknown" | "success"
+
+export type Session = {
+  identifier: string
+  displayName: string
+}

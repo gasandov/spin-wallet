@@ -15,18 +15,13 @@ describe("spinTransactionOutcome", () => {
     expect(spinTransactionOutcome(rngForChance(25))).toBe("network")
   })
 
-  it("returns insufficient for chances 26-40", () => {
-    expect(spinTransactionOutcome(rngForChance(26))).toBe("insufficient")
-    expect(spinTransactionOutcome(rngForChance(40))).toBe("insufficient")
+  it("returns unknown for chances 26-35", () => {
+    expect(spinTransactionOutcome(rngForChance(26))).toBe("unknown")
+    expect(spinTransactionOutcome(rngForChance(35))).toBe("unknown")
   })
 
-  it("returns unknown for chances 41-50", () => {
-    expect(spinTransactionOutcome(rngForChance(41))).toBe("unknown")
-    expect(spinTransactionOutcome(rngForChance(50))).toBe("unknown")
-  })
-
-  it("returns success for chances 51-100", () => {
-    expect(spinTransactionOutcome(rngForChance(51))).toBe("success")
+  it("returns success for chances 36-100", () => {
+    expect(spinTransactionOutcome(rngForChance(36))).toBe("success")
     expect(spinTransactionOutcome(rngForChance(100))).toBe("success")
   })
 })

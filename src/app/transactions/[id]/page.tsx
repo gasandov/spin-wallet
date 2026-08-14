@@ -7,7 +7,8 @@ import { use } from "react"
 
 import { ScreenShell } from "@/components/screen-shell"
 import { BackLink } from "@/components/ui/back-link"
-import { formatCurrency, formatTimestamp, getMovement } from "@/domain/wallet"
+import { formatCurrency, formatTimestamp } from "@/domain/wallet"
+import { getMovement } from "@/lib/api"
 
 type ReceiptPageProps = {
   params: Promise<{ id: string }>
@@ -17,7 +18,7 @@ const ReceiptPage = ({ params }: ReceiptPageProps) => {
   const { id } = use(params)
   const movementQuery = useQuery({
     queryKey: ["movement", id],
-    queryFn: () => getMovement(id) ?? null,
+    queryFn: () => getMovement(id),
   })
 
   if (movementQuery.isPending) {
