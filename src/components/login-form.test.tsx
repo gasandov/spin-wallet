@@ -17,6 +17,7 @@ describe("LoginForm", () => {
       if (identifier === "fail@spin.app") {
         throw new Error("Unable to sign in. Please try again.")
       }
+      return { identifier, displayName: "user" }
     })
     const onLogin = vi.fn()
     render(<LoginForm onLogin={onLogin} signIn={signIn} />)

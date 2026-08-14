@@ -6,7 +6,8 @@ import { MovementList } from "@/components/movement-list"
 import { ScreenShell } from "@/components/screen-shell"
 import { BackLink } from "@/components/ui/back-link"
 import { Button } from "@/components/ui/button"
-import { getWallet, WALLET_QUERY_KEY } from "@/domain/wallet"
+import { WALLET_QUERY_KEY } from "@/domain/wallet"
+import { getWallet } from "@/lib/api"
 
 const TransactionsPage = () => {
   const walletQuery = useQuery({

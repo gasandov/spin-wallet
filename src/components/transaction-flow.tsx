@@ -21,13 +21,8 @@ import {
   transactionFormSchema,
   type TransactionFormValues,
 } from "@/domain/transaction"
-import {
-  formatCurrency,
-  getWallet,
-  recordTransaction,
-  WALLET_QUERY_KEY,
-} from "@/domain/wallet"
-import { postTransaction, WalletApiError } from "@/lib/api"
+import { formatCurrency, WALLET_QUERY_KEY } from "@/domain/wallet"
+import { getWallet, postTransaction, WalletApiError } from "@/lib/api"
 
 import { ScreenShell } from "./screen-shell"
 import { BackLink } from "./ui/back-link"
@@ -123,12 +118,6 @@ export const TransactionFlow = () => {
       const data = await mutation.mutateAsync({
         amount: draft.amount,
         contactId: draft.contactId,
-      })
-      recordTransaction({
-        id: data.receiptId,
-        description: `Sent to ${draft.recipientLabel}`,
-        amount: -draft.amount,
-        timestamp: data.timestamp,
       })
       await queryClient.invalidateQueries({ queryKey: WALLET_QUERY_KEY })
       router.replace(`/transactions/${data.receiptId}`)

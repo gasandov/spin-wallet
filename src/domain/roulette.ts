@@ -6,8 +6,7 @@ export const spinTransactionOutcome = (
   const chance = Math.floor(random() * 100) + 1
   if (chance <= 10) return "timeout"
   if (chance <= 25) return "network"
-  if (chance <= 40) return "insufficient"
-  if (chance <= 50) return "unknown"
+  if (chance <= 35) return "unknown"
   return "success"
 }
 

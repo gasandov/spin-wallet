@@ -7,23 +7,23 @@ import { useState, type SyntheticEvent } from "react"
 import { useForm } from "react-hook-form"
 
 import {
-  displayNameFromIdentifier,
   LOGIN_FAIL_EMAIL,
   LOGIN_FAIL_PHONE,
   loginFormSchema,
-  mockLogin,
   type LoginFormValues,
 } from "@/domain/auth"
+import type { Session } from "@/domain/wallet.types"
+import { postLogin } from "@/lib/api"
 
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 
 type LoginFormProps = {
   onLogin: (identifier: string, displayName: string) => void
-  signIn?: (identifier: string) => Promise<void>
+  signIn?: (identifier: string) => Promise<Session>
 }
 
-export const LoginForm = ({ onLogin, signIn = mockLogin }: LoginFormProps) => {
+export const LoginForm = ({ onLogin, signIn = postLogin }: LoginFormProps) => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: { identifier: "" },
@@ -34,8 +34,8 @@ export const LoginForm = ({ onLogin, signIn = mockLogin }: LoginFormProps) => {
   const submit = async ({ identifier }: LoginFormValues) => {
     setSubmitError(null)
     try {
-      await signIn(identifier)
-      onLogin(identifier, displayNameFromIdentifier(identifier))
+      const session = await signIn(identifier)
+      onLogin(session.identifier, session.displayName)
     } catch (err: unknown) {
       const message =
         err instanceof Error

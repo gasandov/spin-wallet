@@ -3,8 +3,17 @@ import { NextResponse } from "next/server"
 import { delay } from "@/domain/delay"
 import { generateReceiptId, spinTransactionOutcome } from "@/domain/roulette"
 import { parseTransactionRequest } from "@/domain/transaction"
+import { requireSession } from "@/server/session"
+import {
+  hasInsufficientFunds,
+  recipientLabel,
+  recordTransaction,
+} from "@/server/wallet-store"
 
 export async function POST(request: Request) {
+  const session = await requireSession()
+  if (!session.ok) return session.response
+
   try {
     const body: unknown = await request.json()
     const parsed = parseTransactionRequest(body)
@@ -22,7 +31,14 @@ export async function POST(request: Request) {
       )
     }
 
-    const { amount } = parsed.data
+    const { amount, contactId } = parsed.data
+    if (hasInsufficientFunds(session.identifier, amount)) {
+      return NextResponse.json(
+        { code: "INSUFFICIENT_FUNDS", message: "Insufficient funds." },
+        { status: 422 },
+      )
+    }
+
     await delay(800)
     const outcome = spinTransactionOutcome()
 
@@ -39,12 +55,6 @@ export async function POST(request: Request) {
         { status: 503 },
       )
     }
-    if (outcome === "insufficient") {
-      return NextResponse.json(
-        { code: "INSUFFICIENT_FUNDS", message: "Insufficient funds." },
-        { status: 422 },
-      )
-    }
     if (outcome === "unknown") {
       return NextResponse.json(
         { code: "UNKNOWN_ERROR", message: "Unexpected error." },
@@ -52,12 +62,21 @@ export async function POST(request: Request) {
       )
     }
 
+    const timestamp = new Date().toISOString()
+    const receiptId = generateReceiptId()
+    recordTransaction(session.identifier, {
+      id: receiptId,
+      description: `Sent to ${recipientLabel(contactId)}`,
+      amount: -amount,
+      timestamp,
+    })
+
     return NextResponse.json(
       {
         message: "Successful transaction",
-        receiptId: generateReceiptId(),
+        receiptId,
         amount,
-        timestamp: new Date().toISOString(),
+        timestamp,
       },
       { status: 200 },
     )
