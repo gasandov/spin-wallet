@@ -19,6 +19,7 @@ No usé Copilot, ChatGPT aparte ni codegen fuera de Cursor.
 | 2      | Sign out, credenciales que fallan, error al cargar wallet, sanitizado de monto, lista de movimientos, `/transactions`, validar payload hijacked, autocomplete, deep links y recibos; | Auth, wallet en memoria, `sanitizeAmount`, parser del API, páginas de listado y recibo                       |     |
 | 3      | Alinear UI a Spin: colores, Font Awesome, back con icono                                                                                                                             | `globals.css`, `BackLink`, iconos                                                                            |
 | 4      | Este documento, README y DECISIONS                                                                                                                                                   | Solo markdown                                                                                                |
+| 5      | i18n: español default, inglés opcional, switcher de idioma; actualizar docs                                                                                                          | Diccionarios, store de locale, switcher en `ScreenShell`, copy de pantallas y schemas, tests, markdown       |
 
 Fase 1 (`create-next-app`, deps, Prettier, reglas de Cursor) ya estaba en el repo antes de la primera sesión de implementación.
 
@@ -29,11 +30,13 @@ Fase 1 (`create-next-app`, deps, Prettier, reglas de Cursor) ya estaba en el rep
 - Un solo parser de payload (`parseTransactionRequest`) compartido por el route handler.
 - Tokens semánticos (`primary`, `accent`) en vez de hex en componentes.
 - `BackLink` reutilizado en transacción, listado y recibo.
+- i18n sin librería nueva ni rutas `/{locale}`: diccionarios tipados, Zustand + `localStorage`, traducir errores del API por `code`.
 
 ## Qué corregí o rechacé
 
 - El brief pedía **Home RSC**. El agente lo hizo CSR porque TanStack Query y la sesión viven en el cliente. Lo acepté como trade-off y lo documenté; no forcé un híbrido artificial.
 - No acepté Clerk, shadcn ni un backend real: el challenge es un mock.
+- No acepté `next-intl` ni rutas `/{locale}`: rompían el `proxy.ts` de sesión y no aportan SEO en un mock autenticado.
 
 ## Qué decidí yo y no la IA
 
@@ -41,6 +44,6 @@ Fase 1 (`create-next-app`, deps, Prettier, reglas de Cursor) ya estaba en el rep
 - Las **Cursor rules** (ponytail, coding-standards, react-architecture): handlers nombrados, `ui/` sin Zustand, sin hex en componentes.
 - El **backlog post-v1**: sign out, página de todos los movimientos, recibo por id, autocomplete, validar hijack, error al fetch del wallet, credenciales fijas para reproducir auth error.
 - El **branding**: naranja en CTAs, morado en el card de saldo, Font Awesome, recibo centrado y back a home (no al listado).
-- UI en **inglés**.
+- UI en **español por defecto**, con switcher a inglés en cada pantalla.
 
 La IA propuso el detalle de carpetas, el wallet en memoria del cliente, `skipHydration` en Zustand y no mutar saldo en el API. Yo lo dejé pasar porque encaja con un mock de un par de días; no es una decisión que yo hubiera escrito antes de ver el plan.

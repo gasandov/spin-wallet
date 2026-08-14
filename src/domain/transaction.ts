@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { en, type Messages } from "@/i18n/messages"
+
 import type {
   ApiError,
   TransactionRequest,
@@ -23,10 +25,13 @@ export const hasAtMostTwoDecimals = (amount: number): boolean => {
   return Number(amount.toFixed(2)) === amount
 }
 
-export const transactionFormSchema = (balance: number) =>
+export const transactionFormSchema = (
+  balance: number,
+  messages: Messages["validation"]["transaction"] = en.validation.transaction,
+) =>
   z
     .object({
-      amount: z.string().trim().min(1, "Amount is required."),
+      amount: z.string().trim().min(1, messages.amountRequired),
       contactId: z.string(),
       newContact: z.string(),
     })
@@ -37,19 +42,19 @@ export const transactionFormSchema = (balance: number) =>
           ctx.addIssue({
             code: "custom",
             path: ["amount"],
-            message: "Amount must be greater than 0.",
+            message: messages.amountPositive,
           })
         } else if (!hasAtMostTwoDecimals(amount)) {
           ctx.addIssue({
             code: "custom",
             path: ["amount"],
-            message: "Amount must have at most 2 decimal places.",
+            message: messages.amountDecimals,
           })
         } else if (amount > balance) {
           ctx.addIssue({
             code: "custom",
             path: ["amount"],
-            message: "Insufficient funds.",
+            message: messages.insufficientFunds,
           })
         }
       }
@@ -60,7 +65,7 @@ export const transactionFormSchema = (balance: number) =>
         ctx.addIssue({
           code: "custom",
           path: ["contactId"],
-          message: "Recipient is mandatory.",
+          message: messages.recipientRequired,
         })
       }
     })

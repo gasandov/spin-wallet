@@ -13,7 +13,9 @@ import {
   type LoginFormValues,
 } from "@/domain/auth"
 import type { Session } from "@/domain/wallet.types"
-import { postLogin } from "@/lib/api"
+import { interpolate, messageForErrorCode } from "@/i18n/messages"
+import { postLogin, WalletApiError } from "@/lib/api"
+import { useLocaleStore } from "@/store/locale"
 
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -24,8 +26,12 @@ type LoginFormProps = {
 }
 
 export const LoginForm = ({ onLogin, signIn = postLogin }: LoginFormProps) => {
+  const messages = useLocaleStore((state) => state.messages)
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginFormSchema),
+    resolver: (values, context, options) =>
+      zodResolver(
+        loginFormSchema(useLocaleStore.getState().messages.validation.login),
+      )(values, context, options),
     defaultValues: { identifier: "" },
   })
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -37,11 +43,11 @@ export const LoginForm = ({ onLogin, signIn = postLogin }: LoginFormProps) => {
       const session = await signIn(identifier)
       onLogin(session.identifier, session.displayName)
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Unable to sign in. Please try again."
-      setSubmitError(message)
+      if (err instanceof WalletApiError) {
+        setSubmitError(messageForErrorCode(err.code, messages))
+        return
+      }
+      setSubmitError(messages.auth.signInFailed)
     }
   }
 
@@ -53,14 +59,17 @@ export const LoginForm = ({ onLogin, signIn = postLogin }: LoginFormProps) => {
     <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
       <Input
         id="identifier"
-        label="Phone or email"
+        label={messages.auth.identifierLabel}
         autoComplete="username"
         inputMode="email"
         error={errors.identifier?.message}
         {...form.register("identifier")}
       />
       <p className="text-xs text-muted">
-        To see an auth error, use {LOGIN_FAIL_EMAIL} or {LOGIN_FAIL_PHONE}.
+        {interpolate(messages.auth.failHint, {
+          email: LOGIN_FAIL_EMAIL,
+          phone: LOGIN_FAIL_PHONE,
+        })}
       </p>
       {Boolean(submitError) && (
         <p className="text-sm text-danger" role="alert">
@@ -69,7 +78,7 @@ export const LoginForm = ({ onLogin, signIn = postLogin }: LoginFormProps) => {
       )}
       <Button type="submit" disabled={isSubmitting}>
         <FontAwesomeIcon icon={faRightToBracket} className="fa-fw h-4 w-4" />
-        {isSubmitting ? "Signing in..." : "Sign in"}
+        {isSubmitting ? messages.auth.signingIn : messages.auth.signIn}
       </Button>
     </form>
   )

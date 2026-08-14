@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { en, type Messages } from "@/i18n/messages"
+
 import { delay } from "./delay"
 
 export const LOGIN_FAIL_EMAIL = "fail@spin.app"
@@ -14,15 +16,18 @@ const isEmailOrPhone = (value: string) => {
   return emailPattern.test(value) || phonePattern.test(compact)
 }
 
-export const loginFormSchema = z.object({
-  identifier: z
-    .string()
-    .trim()
-    .min(1, "Phone or email is required.")
-    .refine(isEmailOrPhone, "Enter a valid email or phone number."),
-})
+export const loginFormSchema = (
+  messages: Messages["validation"]["login"] = en.validation.login,
+) =>
+  z.object({
+    identifier: z
+      .string()
+      .trim()
+      .min(1, messages.identifierRequired)
+      .refine(isEmailOrPhone, messages.identifierInvalid),
+  })
 
-export type LoginFormValues = z.infer<typeof loginFormSchema>
+export type LoginFormValues = z.infer<ReturnType<typeof loginFormSchema>>
 
 export const mockLogin = async (identifier: string): Promise<void> => {
   await delay(LOGIN_DELAY_MS)

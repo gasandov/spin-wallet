@@ -8,12 +8,14 @@ import Link from "next/link"
 
 import { formatCurrency, formatTimestamp } from "@/domain/wallet"
 import type { Movement } from "@/domain/wallet.types"
+import type { Locale } from "@/i18n/messages"
 
 type MovementListProps = {
   movements: Movement[]
+  locale: Locale
 }
 
-export const MovementList = ({ movements }: MovementListProps) => (
+export const MovementList = ({ movements, locale }: MovementListProps) => (
   <ul className="flex flex-col gap-2">
     {movements.map((movement) => (
       <li key={movement.id}>
@@ -31,7 +33,7 @@ export const MovementList = ({ movements }: MovementListProps) => (
                 {movement.description}
               </span>
               <span className="text-xs text-muted">
-                {formatTimestamp(movement.timestamp)}
+                {formatTimestamp(movement.timestamp, locale)}
               </span>
             </div>
           </div>
@@ -39,7 +41,7 @@ export const MovementList = ({ movements }: MovementListProps) => (
             <span
               className={`text-sm font-medium ${movement.amount < 0 ? "text-danger" : "text-success"}`}
             >
-              {formatCurrency(movement.amount)}
+              {formatCurrency(movement.amount, locale)}
             </span>
             <FontAwesomeIcon
               icon={faChevronRight}

@@ -22,7 +22,9 @@ import {
   type TransactionFormValues,
 } from "@/domain/transaction"
 import { formatCurrency, WALLET_QUERY_KEY } from "@/domain/wallet"
+import { interpolate, messageForErrorCode } from "@/i18n/messages"
 import { getWallet, postTransaction, WalletApiError } from "@/lib/api"
+import { useLocaleStore } from "@/store/locale"
 
 import { ScreenShell } from "./screen-shell"
 import { BackLink } from "./ui/back-link"
@@ -55,6 +57,8 @@ const recipientLabel = (
 export const TransactionFlow = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const locale = useLocaleStore((state) => state.locale)
+  const messages = useLocaleStore((state) => state.messages)
   const [step, setStep] = useState<Step>("capture")
   const [draft, setDraft] = useState<Draft | null>(null)
   const walletQuery = useQuery({
@@ -63,7 +67,13 @@ export const TransactionFlow = () => {
   })
   const balance = walletQuery.data?.balance ?? MOCK_BALANCE
   const form = useForm<TransactionFormValues>({
-    resolver: zodResolver(transactionFormSchema(balance)),
+    resolver: (values, context, options) =>
+      zodResolver(
+        transactionFormSchema(
+          balance,
+          useLocaleStore.getState().messages.validation.transaction,
+        ),
+      )(values, context, options),
     defaultValues: { amount: "", contactId: "", newContact: "" },
   })
   const selectedId = useWatch({ control: form.control, name: "contactId" })
@@ -135,30 +145,36 @@ export const TransactionFlow = () => {
       <ScreenShell>
         <div className="flex flex-col gap-6">
           <h1 className="text-2xl font-semibold tracking-tight text-accent">
-            Confirm transaction
+            {messages.transaction.confirmTitle}
           </h1>
           <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
-            <p className="text-sm text-muted">You are sending</p>
-            <p className="text-3xl font-semibold">
-              {formatCurrency(draft.amount)}
+            <p className="text-sm text-muted">
+              {messages.transaction.youAreSending}
             </p>
-            <p className="text-sm text-muted">To {draft.recipientLabel}</p>
+            <p className="text-3xl font-semibold">
+              {formatCurrency(draft.amount, locale)}
+            </p>
+            <p className="text-sm text-muted">
+              {interpolate(messages.transaction.toRecipient, {
+                name: draft.recipientLabel,
+              })}
+            </p>
           </div>
           {Boolean(mutation.isError) && (
             <p className="text-sm text-danger" role="alert">
               {mutation.error instanceof WalletApiError
-                ? `${mutation.error.code}: ${mutation.error.message}`
-                : "Unexpected error."}
+                ? messageForErrorCode(mutation.error.code, messages)
+                : messages.errors.UNKNOWN_ERROR}
             </p>
           )}
           <div className="flex flex-col md:flex-row-reverse gap-2">
             <Button onClick={send} disabled={mutation.isPending}>
               <FontAwesomeIcon icon={faPaperPlane} className="fa-fw h-4 w-4" />
               {mutation.isPending
-                ? "Sending..."
+                ? messages.transaction.sending
                 : mutation.isError
-                  ? "Retry"
-                  : "Send"}
+                  ? messages.common.retry
+                  : messages.transaction.send}
             </Button>
             <Button
               variant="secondary"
@@ -166,7 +182,7 @@ export const TransactionFlow = () => {
               disabled={mutation.isPending}
             >
               <FontAwesomeIcon icon={faPen} className="fa-fw h-4 w-4" />
-              Edit
+              {messages.transaction.edit}
             </Button>
           </div>
         </div>
@@ -178,12 +194,14 @@ export const TransactionFlow = () => {
     <ScreenShell>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <BackLink href="/" />
+          <BackLink href="/" label={messages.common.back} />
           <h1 className="text-2xl font-semibold tracking-tight text-accent">
-            New transaction
+            {messages.transaction.title}
           </h1>
           <p className="text-sm text-muted">
-            Available {formatCurrency(balance)}
+            {interpolate(messages.transaction.available, {
+              amount: formatCurrency(balance, locale),
+            })}
           </p>
         </div>
         <form
@@ -193,7 +211,7 @@ export const TransactionFlow = () => {
         >
           <Input
             id="amount"
-            label="Amount"
+            label={messages.transaction.amount}
             inputMode="decimal"
             autoComplete="transaction-amount"
             error={errors.amount?.message}
@@ -203,7 +221,7 @@ export const TransactionFlow = () => {
           <fieldset className="flex flex-col gap-2">
             <legend className="inline-flex items-center gap-2 text-sm font-medium">
               <FontAwesomeIcon icon={faStar} className="fa-fw h-4 w-4" />
-              Favorites
+              {messages.transaction.favorites}
             </legend>
             <div className="flex flex-col gap-2">
               {MOCK_FAVORITES.map((contact) => (
@@ -239,10 +257,10 @@ export const TransactionFlow = () => {
             label={
               <>
                 <FontAwesomeIcon icon={faUserPlus} className="fa-fw h-4 w-4" />
-                New contact
+                {messages.transaction.newContact}
               </>
             }
-            placeholder="Phone or email"
+            placeholder={messages.transaction.identifierPlaceholder}
             autoComplete="username"
             error={errors.newContact?.message}
             {...newContactField}
@@ -250,7 +268,7 @@ export const TransactionFlow = () => {
           />
           <Button type="submit">
             <FontAwesomeIcon icon={faArrowRight} className="fa-fw h-4 w-4" />
-            Continue
+            {messages.transaction.continue}
           </Button>
         </form>
       </div>
