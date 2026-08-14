@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { loginFormSchema } from "./auth"
 
 const identifierError = (identifier: string) => {
-  const result = loginFormSchema.safeParse({ identifier })
+  const result = loginFormSchema().safeParse({ identifier })
   if (result.success) return undefined
   return result.error.issues[0]?.message
 }
@@ -11,13 +11,13 @@ const identifierError = (identifier: string) => {
 describe("loginFormSchema", () => {
   it("accepts an email", () => {
     expect(
-      loginFormSchema.safeParse({ identifier: "ana@spin.app" }).success,
+      loginFormSchema().safeParse({ identifier: "ana@spin.app" }).success,
     ).toBe(true)
   })
 
   it("accepts a phone number", () => {
     expect(
-      loginFormSchema.safeParse({ identifier: "+15551234567" }).success,
+      loginFormSchema().safeParse({ identifier: "+15551234567" }).success,
     ).toBe(true)
   })
 

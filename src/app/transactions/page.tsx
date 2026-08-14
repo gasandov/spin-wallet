@@ -8,8 +8,11 @@ import { BackLink } from "@/components/ui/back-link"
 import { Button } from "@/components/ui/button"
 import { WALLET_QUERY_KEY } from "@/domain/wallet"
 import { getWallet } from "@/lib/api"
+import { useLocaleStore } from "@/store/locale"
 
 const TransactionsPage = () => {
+  const locale = useLocaleStore((state) => state.locale)
+  const messages = useLocaleStore((state) => state.messages)
   const walletQuery = useQuery({
     queryKey: WALLET_QUERY_KEY,
     queryFn: getWallet,
@@ -27,9 +30,9 @@ const TransactionsPage = () => {
     <ScreenShell>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <BackLink href="/" />
+          <BackLink href="/" label={messages.common.back} />
           <h1 className="text-2xl font-semibold tracking-tight text-accent">
-            All transactions
+            {messages.receipts.allTransactions}
           </h1>
         </div>
 
@@ -37,17 +40,17 @@ const TransactionsPage = () => {
           <div className="flex flex-col gap-2" role="status">
             <div className="h-16 animate-pulse rounded-xl bg-card" />
             <div className="h-16 animate-pulse rounded-xl bg-card" />
-            <p className="sr-only">Loading transactions</p>
+            <p className="sr-only">{messages.receipts.loadingTransactions}</p>
           </div>
         )}
 
         {Boolean(walletQuery.isError) && (
           <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
             <p className="text-sm text-danger" role="alert">
-              Could not load your wallet. Please try again.
+              {messages.home.walletLoadError}
             </p>
             <Button onClick={handleRetry} variant="secondary">
-              Retry
+              {messages.common.retry}
             </Button>
           </div>
         )}
@@ -56,10 +59,13 @@ const TransactionsPage = () => {
           <>
             {walletQuery.data.movements.length === 0 ? (
               <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted">
-                No transactions.
+                {messages.receipts.noTransactions}
               </p>
             ) : (
-              <MovementList movements={walletQuery.data.movements} />
+              <MovementList
+                movements={walletQuery.data.movements}
+                locale={locale}
+              />
             )}
           </>
         )}

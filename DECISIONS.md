@@ -9,8 +9,9 @@ src/app/          rutas y route handlers
 src/proxy.ts      redirect de páginas según cookie (no toca el Map)
 src/components/   UI (las pages delegan; ui/ no toca Zustand)
 src/domain/       reglas, schemas, mocks, ruleta
+src/i18n/         diccionarios es/en y helpers
 src/server/       sesión (cookie) y ledger en memoria
-src/store/        cache de UI de la sesión
+src/store/        cache de UI: sesión e idioma
 src/lib/          fetch tipado hacia las APIs
 ```
 
@@ -27,7 +28,7 @@ Zustand es solo cache de UI (displayName). La sesión real es la cookie. TanStac
 - `auth.ts` — schema de login, delay mock, credenciales que fallan, nombre para mostrar.
 - `transaction.ts` — `sanitizeAmount`, schema del formulario y `parseTransactionRequest` para el API.
 - `roulette.ts` — timeout / network / unknown / success; el RNG se inyecta para tests.
-- `wallet.ts` — formatters, fail rate del GET, query key. Sin ledger.
+- `wallet.ts` — formatters (locale opcional, default `es`), fail rate del GET, query key. Sin ledger.
 - `wallet.types.ts` — tipos compartidos.
 
 **Servidor** (`src/server/`):
@@ -35,7 +36,7 @@ Zustand es solo cache de UI (displayName). La sesión real es la cookie. TanStac
 - `session.ts` — cookie httpOnly, `requireSession()` → 401.
 - `wallet-store.ts` — `Map<identifier, Wallet>`. Fuente de verdad del saldo.
 
-**UI:** React Hook Form; capture → confirm; Query para loading / error / empty / retry.
+**UI:** React Hook Form; capture → confirm; Query para loading / error / empty / retry. Copy vía diccionarios; el switcher vive en `ScreenShell`.
 
 **API:** route handlers piden sesión, reutilizan parsers de dominio y mutan el store. El POST checa saldo real (422) y después tira la ruleta de infra. El servidor arma la descripción del movimiento.
 
@@ -50,7 +51,14 @@ Zustand es solo cache de UI (displayName). La sesión real es la cookie. TanStac
 - **Login:** vacío, ni email ni teléfono, `fail@spin.app` / `0000000000`. Cookie + `proxy.ts` en páginas; APIs 401.
 - **Wallet:** ~20% de `GET /api/wallet` → 503 + Retry. Recibo con id desconocido → 404 / “Transaction not found”.
 - **Multi-usuario:** cada identifier tiene su Map entry. Logout no borra el ledger.
-- **Fechas:** `formatTimestamp` (UTC) es el mismo en la lista y en el recibo.
+- **Fechas:** `formatTimestamp` (UTC, locale de la UI) es el mismo en la lista y en el recibo.
+- **Idioma:** default `es`. Preferencia en Zustand + `localStorage` (`spin_locale`). Sin prefijo `/es` `/en` en las URLs: pelearía con `proxy.ts` y cada `Link`. Los mensajes del API siguen en inglés; la UI traduce por `code`. Los schemas de Zod defaultan a inglés (tests de dominio); los forms del cliente les pasan el diccionario activo.
+
+## i18n
+
+El producto es Spin México, así que el default es español. No se usó `next-intl` ni rutas por locale: la app es un mock autenticado (no SEO) y casi toda la UI ya es client. Un diccionario tipado + store existente es el diff mínimo.
+
+`html lang` arranca en `es`. Quien tenga inglés guardado ve un flash corto al hidratar; cookie + SSR sería el upgrade.
 
 ## Qué haría diferente con más tiempo
 
@@ -60,4 +68,4 @@ Zustand es solo cache de UI (displayName). La sesión real es la cookie. TanStac
 - E2E (Playwright) del flujo capture → confirm → recibo.
 - Timeout de verdad (`AbortSignal`) en vez de `delay(10_000)`.
 - Guardar contactos nuevos como favoritos.
-- i18n (la UI está en inglés; el producto es Spin México).
+- Preferencia de idioma en cookie para pintar el SSR en inglés sin flash.

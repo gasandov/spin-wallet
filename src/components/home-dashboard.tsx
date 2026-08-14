@@ -17,6 +17,7 @@ import {
   WALLET_QUERY_KEY,
 } from "@/domain/wallet"
 import { getWallet, postLogout } from "@/lib/api"
+import { useLocaleStore } from "@/store/locale"
 import { useSessionStore } from "@/store/session"
 
 import { MovementList } from "./movement-list"
@@ -28,6 +29,8 @@ export const HomeDashboard = () => {
   const queryClient = useQueryClient()
   const displayName = useSessionStore((state) => state.displayName)
   const logout = useSessionStore((state) => state.logout)
+  const locale = useLocaleStore((state) => state.locale)
+  const messages = useLocaleStore((state) => state.messages)
   const walletQuery = useQuery({
     queryKey: WALLET_QUERY_KEY,
     queryFn: getWallet,
@@ -67,9 +70,9 @@ export const HomeDashboard = () => {
     <ScreenShell>
       <header className="mb-6 flex items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <p className="text-sm text-muted">Welcome back</p>
+          <p className="text-sm text-muted">{messages.home.welcomeBack}</p>
           <h1 className="text-2xl font-semibold tracking-tight text-accent">
-            {displayName ?? "Spin User"}
+            {displayName ?? messages.home.spinUser}
           </h1>
         </div>
         <button
@@ -81,7 +84,7 @@ export const HomeDashboard = () => {
             icon={faRightFromBracket}
             className="fa-fw h-4 w-4"
           />
-          Sign out
+          {messages.home.signOut}
         </button>
       </header>
 
@@ -90,17 +93,17 @@ export const HomeDashboard = () => {
           <div className="h-36 animate-pulse rounded-2xl bg-card" />
           <div className="h-16 animate-pulse rounded-xl bg-card" />
           <div className="h-16 animate-pulse rounded-xl bg-card" />
-          <p className="sr-only">Loading wallet</p>
+          <p className="sr-only">{messages.home.loadingWallet}</p>
         </div>
       )}
 
       {Boolean(walletQuery.isError) && (
         <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
           <p className="text-sm text-danger" role="alert">
-            Could not load your wallet. Please try again.
+            {messages.home.walletLoadError}
           </p>
           <Button onClick={handleRetry} variant="secondary">
-            Retry
+            {messages.common.retry}
           </Button>
         </div>
       )}
@@ -110,28 +113,28 @@ export const HomeDashboard = () => {
           <section className="rounded-2xl bg-primary p-5 text-primary-foreground">
             <p className="inline-flex items-center gap-2 text-sm opacity-80">
               <FontAwesomeIcon icon={faWallet} className="fa-fw h-4 w-4" />
-              Available balance
+              {messages.home.availableBalance}
             </p>
             <p className="mt-2 text-3xl font-semibold tracking-tight">
-              {formatCurrency(walletQuery.data.balance)}
+              {formatCurrency(walletQuery.data.balance, locale)}
             </p>
           </section>
 
           <Button onClick={goToTransaction}>
             <FontAwesomeIcon icon={faPaperPlane} className="fa-fw h-4 w-4" />
-            New transaction
+            {messages.home.newTransaction}
           </Button>
 
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-sm font-medium text-muted">
-                Recent movements
+                {messages.home.recentMovements}
               </h2>
               <Link
                 href="/transactions"
                 className="inline-flex items-center gap-2 text-sm text-accent"
               >
-                See all
+                {messages.home.seeAll}
                 <FontAwesomeIcon
                   icon={faChevronRight}
                   className="fa-fw h-4 w-4"
@@ -140,10 +143,10 @@ export const HomeDashboard = () => {
             </div>
             {recent.length === 0 ? (
               <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted">
-                No recent movements.
+                {messages.home.noRecentMovements}
               </p>
             ) : (
-              <MovementList movements={recent} />
+              <MovementList movements={recent} locale={locale} />
             )}
           </section>
         </div>

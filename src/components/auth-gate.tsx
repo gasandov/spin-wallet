@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, type ReactNode } from "react"
 
 import { getSession } from "@/lib/api"
+import { useLocaleStore } from "@/store/locale"
 import { useSessionStore } from "@/store/session"
 
 type AuthGateProps = {
@@ -17,6 +18,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   const pathname = usePathname()
   const identifier = useSessionStore((state) => state.identifier)
   const hasHydrated = useSessionStore((state) => state.hasHydrated)
+  const messages = useLocaleStore((state) => state.messages)
 
   useEffect(() => {
     const loadSession = async () => {
@@ -49,7 +51,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   if (!hasHydrated) {
     return (
       <div className="flex flex-1 items-center justify-center text-muted">
-        <p role="status">Loading...</p>
+        <p role="status">{messages.common.loading}</p>
       </div>
     )
   }

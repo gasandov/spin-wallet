@@ -10,7 +10,7 @@ import { setSessionCookie } from "@/server/session"
 export async function POST(request: Request) {
   try {
     const body: unknown = await request.json()
-    const parsed = loginFormSchema.safeParse(body)
+    const parsed = loginFormSchema().safeParse(body)
     if (!parsed.success) {
       return NextResponse.json(
         {

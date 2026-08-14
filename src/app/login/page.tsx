@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation"
 
 import { LoginForm } from "@/components/login-form"
 import { ScreenShell } from "@/components/screen-shell"
+import { useLocaleStore } from "@/store/locale"
 import { useSessionStore } from "@/store/session"
 
 const LoginPage = () => {
   const router = useRouter()
   const login = useSessionStore((state) => state.login)
+  const messages = useLocaleStore((state) => state.messages)
 
   const handleLogin = (identifier: string, displayName: string) => {
     login(identifier, displayName)
@@ -23,14 +25,12 @@ const LoginPage = () => {
         <div className="flex flex-col gap-2">
           <p className="inline-flex items-center gap-2 text-sm font-medium text-primary">
             <FontAwesomeIcon icon={faWallet} className="fa-fw h-4 w-4" />
-            Spin Wallet
+            {messages.auth.brand}
           </p>
           <h1 className="text-2xl font-semibold tracking-tight text-accent">
-            Sign in
+            {messages.auth.signIn}
           </h1>
-          <p className="text-sm text-muted">
-            Use your phone number or email to continue.
-          </p>
+          <p className="text-sm text-muted">{messages.auth.subtitle}</p>
         </div>
         <LoginForm onLogin={handleLogin} />
       </div>
