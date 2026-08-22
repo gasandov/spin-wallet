@@ -91,8 +91,9 @@ export const postLogout = async (): Promise<void> => {
   }
 }
 
-export const getSession = async (): Promise<Session> => {
+export const getSession = async (): Promise<Session | null> => {
   const response = await fetch("/api/auth/session")
+  if (response.status === 401) return null
   const data = await parseJson(response)
   throwIfError(response, data)
   const parsed = parseSession(data)
