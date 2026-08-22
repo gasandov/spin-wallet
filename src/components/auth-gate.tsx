@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, type ReactNode } from "react"
+import { useEffect, useRef, type ReactNode } from "react"
 
 import { getSession } from "@/lib/api"
 import { useLocaleStore } from "@/store/locale"
@@ -19,14 +19,26 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   const identifier = useSessionStore((state) => state.identifier)
   const hasHydrated = useSessionStore((state) => state.hasHydrated)
   const messages = useLocaleStore((state) => state.messages)
+  const sessionCheckPath = useRef<string | null>(null)
 
   useEffect(() => {
+    if (PUBLIC_PATHS.has(pathname) || identifier) {
+      useSessionStore.getState().setHasHydrated(true)
+      return
+    }
+    if (sessionCheckPath.current === pathname) return
+    sessionCheckPath.current = pathname
+
     const loadSession = async () => {
       try {
         const session = await getSession()
-        useSessionStore
-          .getState()
-          .login(session.identifier, session.displayName)
+        if (session) {
+          useSessionStore
+            .getState()
+            .login(session.identifier, session.displayName)
+        } else {
+          useSessionStore.getState().logout()
+        }
       } catch {
         useSessionStore.getState().logout()
       } finally {
@@ -34,7 +46,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
       }
     }
     loadSession()
-  }, [])
+  }, [identifier, pathname])
 
   useEffect(() => {
     if (!hasHydrated) return

@@ -1,6 +1,6 @@
 # Decisiones de diseño
 
-Por qué el repo está armado así, dónde termina la UI y empieza el dominio, qué bordes se cubrieron y qué se dejaría para después.
+Por qué el repo está armado así, dónde termina la UI y empieza el dominio, qué bordes se cubrieron y qué se dejaría para después. Las decisiones están explicadas junto con sus trade-offs para que el mock sea fácil de evaluar y de extender sin confundir estado de UI con estado de negocio.
 
 ## Por qué esta estructura
 
@@ -15,11 +15,21 @@ src/store/        cache de UI: sesión e idioma
 src/lib/          fetch tipado hacia las APIs
 ```
 
-El brief pedía Next.js App Router y TypeScript. El repo ya venía de `create-next-app`, así que no se cambió de framework.
+El brief pedía Next.js App Router y TypeScript. El repo ya venía de `create-next-app`, así que no se cambió de framework. App Router permite mantener las rutas, layouts y route handlers en el mismo árbol, y deja las páginas delgadas mientras los componentes cliente manejan los flujos interactivos.
 
-Las capas existen para poder testear la ruleta, el parseo del payload, los schemas de Zod y el store **sin montar React**. Las pages de App Router son delgadas. Los componentes atómicos en `src/components/ui/` no leen el store.
+Las capas existen para poder testear la ruleta, el parseo del payload, los schemas de Zod y el store **sin montar React**. Las pages de App Router son delgadas y solo ensamblan componentes. Los componentes atómicos en `src/components/ui/` no leen el store: reciben props, por lo que se pueden reutilizar y probar sin conocer el resto de la aplicación.
 
-Zustand es solo cache de UI (displayName). La sesión real es la cookie. TanStack Query es el estado asíncrono del wallet. El cliente **no** muta el saldo: después de un 200 solo invalida la query.
+### Por qué Zustand
+
+Zustand resuelve el estado pequeño y global que necesita la UI sin introducir reducers, providers adicionales ni una capa de persistencia implícita. Aquí guarda el `displayName` después del login y la preferencia de idioma; son datos de presentación que varias pantallas necesitan. No es la fuente de verdad del saldo ni de la autenticación: el saldo vive en el servidor y la sesión vive en la cookie. Esta separación evita que un estado cliente obsoleto pueda autorizar una operación o inventar un balance.
+
+### Por qué `localStorage`
+
+El idioma es una preferencia del navegador, no parte del recurso wallet ni de la URL, por eso se persiste con la clave `spin_locale`. Así el usuario conserva `es` o `en` entre recargas sin añadir prefijos de locale a cada ruta ni introducir una librería de routing internacionalizado para un mock sin necesidades de SEO. La consecuencia es que `localStorage` solo está disponible en el cliente: el HTML comienza en español y se hidrata con la preferencia guardada, lo que puede producir un flash breve. Una versión de producción podría mover la preferencia a una cookie para resolverla durante SSR.
+
+### Por qué cookies httpOnly
+
+La cookie `spin_session` permite que el navegador envíe la sesión automáticamente a los route handlers y que `proxy.ts` pueda hacer redirects de páginas antes de renderizar. Al ser `httpOnly`, el JavaScript de la página no puede leerla directamente, reduciendo la exposición accidental del identificador frente a scripts de terceros. El cliente mantiene solo una copia de presentación en Zustand y vuelve a consultar `/api/auth/session` cuando necesita reconstruirla. En este challenge el valor es un identifier sin firmar, por lo que es deliberadamente forjable; firmar la cookie o usar un proveedor de auth sería el siguiente paso fuera del alcance del mock.
 
 ## UI vs lógica de negocio
 
@@ -35,6 +45,26 @@ Zustand es solo cache de UI (displayName). La sesión real es la cookie. TanStac
 
 - `session.ts` — cookie httpOnly, `requireSession()` → 401.
 - `wallet-store.ts` — `Map<identifier, Wallet>`. Fuente de verdad del saldo.
+
+### Por qué cada frontera
+
+- `src/app/` contiene convenciones de Next: páginas, layout, proxy y endpoints HTTP; no concentra reglas de negocio.
+- `src/components/` contiene la UI compuesta y los pasos interactivos; `components/ui/` contiene piezas presentacionales.
+- `src/domain/` contiene reglas deterministas, tipos, schemas y la ruleta; puede probarse sin navegador ni servidor.
+- `src/server/` contiene efectos de servidor: cookie de sesión y ledger; no se importa desde componentes cliente.
+- `src/store/` contiene estado de presentación compartido; no reemplaza al servidor.
+- `src/lib/` contiene el cliente HTTP tipado y la configuración de Query, aislando `fetch` de la UI.
+- `src/i18n/` contiene diccionarios y traducción por códigos; evita duplicar copy condicional en cada componente.
+
+Esta división hace explícito dónde se puede cambiar una decisión. Por ejemplo, sustituir el `Map` por una base de datos afecta al servidor y sus pruebas, no a las páginas; cambiar el mecanismo de idioma afecta al store y los diccionarios, no a la validación de montos.
+
+### Por qué TanStack Query
+
+El wallet es estado remoto: necesita loading, error, retry, cache e invalidación después de una mutación. TanStack Query cubre ese ciclo sin copiar el saldo a Zustand ni coordinar manualmente estados entre home, listado y recibo. Después de enviar, el cliente invalida la query y vuelve a pedir el saldo; el cliente nunca calcula ni confirma el balance por su cuenta.
+
+### Por qué Zod y React Hook Form
+
+React Hook Form maneja el estado y los eventos del formulario con poco código, mientras Zod concentra las reglas de entrada. El formulario usa un schema con el balance visible para feedback inmediato y el API reutiliza un parser independiente para validar nuevamente payloads manipulados. La validación de UI mejora la experiencia, pero la validación del servidor sigue siendo obligatoria.
 
 **UI:** React Hook Form; capture → confirm; Query para loading / error / empty / retry. Copy vía diccionarios; el switcher vive en `ScreenShell`.
 
@@ -53,6 +83,7 @@ Zustand es solo cache de UI (displayName). La sesión real es la cookie. TanStac
 - **Multi-usuario:** cada identifier tiene su Map entry. Logout no borra el ledger.
 - **Fechas:** `formatTimestamp` (UTC, locale de la UI) es el mismo en la lista y en el recibo.
 - **Idioma:** default `es`. Preferencia en Zustand + `localStorage` (`spin_locale`). Sin prefijo `/es` `/en` en las URLs: pelearía con `proxy.ts` y cada `Link`. Los mensajes del API siguen en inglés; la UI traduce por `code`. Los schemas de Zod defaultan a inglés (tests de dominio); los forms del cliente les pasan el diccionario activo.
+- **Auth en páginas:** `proxy.ts` hace el redirect optimista según la cookie. `/login` no hace una consulta cliente redundante de sesión; en rutas protegidas, un 401 durante el bootstrap es un estado normal de usuario anónimo y no un error visible.
 
 ## i18n
 
